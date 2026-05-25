@@ -45,6 +45,18 @@ export function MissionReportModal({ state }: Props) {
         {report.itemsLost.length > 0 && (
           <p>Lost: {report.itemsLost.join('; ')}</p>
         )}
+        {report.bodyLoot.length > 0 && (
+          <>
+            <strong>Body Loot</strong>
+            <ul>
+              {report.bodyLoot.map((loot, i) => (
+                <li key={i}>
+                  +{loot.qty} {loot.itemId}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </div>
   )

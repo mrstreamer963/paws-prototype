@@ -17,12 +17,21 @@ const SLOT_LABEL: Record<string, string> = {
   drill: 'DRILL',
 }
 
+const ITEM_EMOJI: Record<string, string> = {
+  ammo: '🔫',
+  medkit: '💊',
+  materials: '📦',
+  scrap: '⚙️',
+  fuel: '⛽',
+}
+
 interface Props {
   unit: UnitState
 }
 
 export function UnitCard({ unit }: Props) {
   const readiness = computeUnitReadiness(unit.id, unit.slots)
+  const totalWeight = unit.backpack.reduce((sum, s) => sum + s.qty, 0)
 
   return (
     <article className="unit-card">
@@ -39,6 +48,29 @@ export function UnitCard({ unit }: Props) {
           </span>
         ))}
       </div>
+
+      {/* Backpack */}
+      {unit.backpack.length > 0 && (
+        <div className="unit-card__backpack">
+          <span className="backpack-label">🎒</span>
+          <div className="backpack-items">
+            {unit.backpack.slice(0, 3).map((item) => (
+              <span key={item.itemId} className="backpack-item">
+                {ITEM_EMOJI[item.itemId] ?? '📦'} {item.itemId}:{item.qty}
+              </span>
+            ))}
+            {unit.backpack.length > 3 && (
+              <span className="backpack-more">+{unit.backpack.length - 3}</span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Weight */}
+      {totalWeight > 0 && (
+        <div className="unit-card__weight">⚖ {totalWeight}</div>
+      )}
+
       <div className="unit-card__readiness-label">
         <span>Readiness</span>
         <span>{readiness}%</span>

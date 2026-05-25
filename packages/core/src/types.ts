@@ -28,6 +28,8 @@ export interface UnitState {
   name: string
   role: string
   slots: UnitSlot[]
+  backpack: ItemStack[]
+  weight: number
 }
 
 export interface SquadState {
@@ -81,6 +83,7 @@ export interface MissionReport {
   events: GameEvent[]
   lootGained: ItemStack[]
   itemsLost: string[]
+  bodyLoot: Array<{ itemId: string; qty: number }>
 }
 
 export interface GameState {

@@ -97,6 +97,8 @@ function buildUnit(def: (typeof UNIT_DEFS)[0]): UnitState {
       slotId: t.slotId,
       itemId: t.itemId,
     })),
+    backpack: [],
+    weight: 0,
   }
 }
 

@@ -49,6 +49,27 @@ export function SquadDetailPanel({ state }: Props) {
         Auto Resupply
       </label>
       <div className="template-row">Template: {active.doctrine}</div>
+
+      {/* Backpack summary */}
+      <div className="backpack-section">
+        <button type="button" className="btn-secondary" disabled>
+          MANAGE BACKPACKS
+        </button>
+        <div className="backpack-summary">
+          {active.units.map((unit) => (
+            <div key={unit.id} className="backpack-unit-row">
+              <span>{unit.name}</span>
+              {unit.backpack.length > 0 ? (
+                <span className="backpack-count">
+                  {unit.backpack.map((s) => `${s.qty}${s.itemId[0]}`).join(' ')}
+                </span>
+              ) : (
+                <span className="empty-label">empty</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   )
 }

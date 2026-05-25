@@ -82,6 +82,18 @@ function buildReport(
   const readinessAfter = computeReadiness(squad)
   const outcome: MissionReport['outcome'] =
     readinessAfter > 20 ? 'success' : 'partial'
+  // Extract body scavenging loot from mission events
+  const bodyLoot: MissionReport['bodyLoot'] = missionEvents
+    .filter((e) => e.message.includes('scavenged body'))
+    .map((e) => {
+      const match = e.message.match(/\+(\d+) (.+)/)
+      if (match) {
+        return { itemId: match[2], qty: parseInt(match[1]) }
+      }
+      return null
+    })
+    .filter(Boolean) as MissionReport['bodyLoot']
+
   return {
     outcome,
     durationMs: squad.missionElapsedMs,
@@ -90,6 +102,7 @@ function buildReport(
     events: [...missionEvents],
     lootGained: lootGainedSince(squad, before),
     itemsLost: itemsLostDuringMission(squad, before),
+    bodyLoot,
   }
 }
 

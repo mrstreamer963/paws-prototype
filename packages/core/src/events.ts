@@ -1,8 +1,9 @@
 import type { GameEvent, SquadState } from './types.js'
 import { getTemplateSlotsForUnit } from './content.js'
 import type { Rng } from './rng.js'
-import { MissionTypeConfig, MISSION_TYPE_CONFIGS } from './config.js'
+import { MISSION_TYPE_CONFIGS, BODY_LOOT_TABLE } from './config.js'
 import type { MissionType } from './types.js'
+import { addLootToUnitBackpack } from './weight.js'
 
 const CONSUMABLE_SLOTS = new Set(['medkit', 'toolkit', 'scanner'])
 
@@ -29,12 +30,68 @@ export function applyEncounter(
       : unit.slots[rng.int(0, unit.slots.length - 1)]
   const lost = target.itemId
   target.itemId = null
+
+  // 30% chance to scavenge a body after encounter
+  if (rng.next() < 0.3) {
+    return scavengeBody(squad, rng, tick, simTimeMs)
+  }
+
   return {
     tick,
     simTimeMs,
     squadId: squad.id,
     type: 'encounter',
     message: `${unit.name} took fire — lost ${lost ?? 'gear'} (${penaltyPercent}% penalty)`,
+  }
+}
+
+export function scavengeBody(squad: SquadState, rng: Rng, tick: number, simTimeMs: number): GameEvent {
+  const totalWeight = BODY_LOOT_TABLE.reduce((sum, e) => sum + e.chance, 0)
+  let r = rng.next() * totalWeight
+
+  for (const entry of BODY_LOOT_TABLE) {
+    r -= entry.chance
+    if (r <= 0) {
+      if (entry.itemId === 'empty') {
+        return {
+          tick,
+          simTimeMs,
+          squadId: squad.id,
+          type: 'loot',
+          message: 'Searched a body — nothing useful found',
+        }
+      }
+
+      const unit = squad.units[rng.int(0, squad.units.length - 1)]
+      const qty = rng.int(1, 3)
+      const stacked = addLootToUnitBackpack(unit, entry.itemId, qty)
+
+      if (stacked) {
+        return {
+          tick,
+          simTimeMs,
+          squadId: squad.id,
+          type: 'loot',
+          message: `${unit.name} scavenged body — +${qty} ${entry.itemId}`,
+        }
+      } else {
+        return {
+          tick,
+          simTimeMs,
+          squadId: squad.id,
+          type: 'loot',
+          message: `${unit.name} backpack full — loot left behind`,
+        }
+      }
+    }
+  }
+
+  return {
+    tick,
+    simTimeMs,
+    squadId: squad.id,
+    type: 'loot',
+    message: 'Searched a body — nothing useful found',
   }
 }
 

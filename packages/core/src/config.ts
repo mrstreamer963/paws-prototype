@@ -23,6 +23,31 @@ export interface MissionTypeConfig {
   }
 }
 
+export const ITEM_WEIGHTS: Record<string, number> = {
+  ammo: 1,
+  medkit: 1,
+  materials: 2,
+  scrap: 1,
+  fuel: 2,
+}
+
+export interface BodyLootEntry {
+  itemId: string
+  weight: number
+  chance: number
+}
+
+export const BODY_LOOT_TABLE: BodyLootEntry[] = [
+  { itemId: 'ammo', weight: 1, chance: 25 },
+  { itemId: 'medkit', weight: 1, chance: 15 },
+  { itemId: 'materials', weight: 2, chance: 20 },
+  { itemId: 'scrap', weight: 1, chance: 20 },
+  { itemId: 'fuel', weight: 2, chance: 10 },
+  { itemId: 'empty', weight: 0, chance: 10 },
+]
+
+export const BACKPACK_CAPACITY = 5
+
 export const MISSION_TYPE_CONFIGS: Record<MissionType, MissionTypeConfig> = {
   PATROL: {
     durationMs: 30000,

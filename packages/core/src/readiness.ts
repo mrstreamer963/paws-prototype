@@ -1,5 +1,6 @@
 import type { SquadState } from './types.js'
 import { getTemplateSlotsForUnit } from './content.js'
+import { calcWeightPenalty, calcWeight } from './weight.js'
 
 export function computeReadiness(squad: SquadState): number {
   let filled = 0
@@ -13,7 +14,13 @@ export function computeReadiness(squad: SquadState): number {
     }
   }
   if (total === 0) return 0
-  return Math.round((filled / total) * 100)
+  let baseReadiness = Math.round((filled / total) * 100)
+
+  // Apply weight penalty
+  const penalty = calcWeightPenalty(calcWeight(squad))
+  baseReadiness = Math.max(0, baseReadiness + penalty)
+
+  return baseReadiness
 }
 
 export function computeUnitReadiness(unitId: string, slots: SquadState['units'][0]['slots']): number {
