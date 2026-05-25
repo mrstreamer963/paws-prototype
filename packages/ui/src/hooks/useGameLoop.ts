@@ -19,5 +19,9 @@ export function useGameLoop(): GameState {
     return () => cancelAnimationFrame(raf)
   }, [])
 
+  // DEBUG
+  if (state.tick > 0 && state.tick % 100 === 0) {
+    console.log('tick:', state.tick, 'squads:', state.squads.length, state.squads.map(s => ({ id: s.id, phase: s.phase })))
+  }
   return state
 }
