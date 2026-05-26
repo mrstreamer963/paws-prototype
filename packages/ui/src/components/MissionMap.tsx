@@ -55,7 +55,7 @@ export function MissionMap({ state }: Props) {
       <div className="map-canvas-wrap" ref={wrapRef}>
         <canvas ref={canvasRef} />
         <PhaseBanner state={state} />
-        <MissionReportModal state={state} />
+        {/* <MissionReportModal state={state} /> */}
       </div>
     </div>
   )
