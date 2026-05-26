@@ -1,11 +1,13 @@
 import type { GamePhase } from '@paws/core'
 
-export function formatSimTime(simTimeMs: number): string {
-  // Коэффициент замедления: 5 минут реального времени = 5 секунд виртуального
-  const timeScale = 60
+// Коэффициент: 1 реальная секунда = 60 виртуальных секунд (5 мин реал = 5 сек вирт)
+export const TIME_SCALE = 60
 
-  // Переводим миллисекунды в секунды
-  const totalSeconds = Math.floor((simTimeMs / 1000) * timeScale)
+// Виртуальные сутки в реальных миллисекундах: 86400 сек / 60 × 1000 мс
+export const SIM_DAY_MS = (86400 / TIME_SCALE) * 1000
+
+export function formatSimTime(simTimeMs: number): string {
+  const totalSeconds = Math.floor((simTimeMs / 1000) * TIME_SCALE)
 
   const h = Math.floor(totalSeconds / 3600) % 24
   const m = Math.floor((totalSeconds % 3600) / 60)
@@ -14,7 +16,7 @@ export function formatSimTime(simTimeMs: number): string {
 }
 
 export function formatDay(simTimeMs: number): number {
-  return Math.floor(simTimeMs / 86400) + 1
+  return Math.floor(simTimeMs / SIM_DAY_MS) + 1
 }
 
 export function phaseToStatus(phase: GamePhase): string {
