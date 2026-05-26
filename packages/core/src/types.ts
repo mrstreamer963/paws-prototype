@@ -44,6 +44,9 @@ export interface SquadState {
   phaseTimeLeftMs: number
   missionProgress: number
   missionTargetId: string | null
+  missionTargetX: number
+  missionTargetY: number
+  missionTargetDurationMs: number
   missionElapsedMs: number
   nextEventInMs: number
   missionEvents: GameEvent[]

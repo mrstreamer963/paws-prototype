@@ -66,7 +66,8 @@ function cloneSquad(squad: SquadState): SquadState {
 function lootGainedSince(current: SquadState, before: SquadState): ItemStack[] {
   const gained: ItemStack[] = []
   for (const stack of current.cargo) {
-    const prev = before.cargo.find((s) => s.itemId === stack.itemId)?.qty ?? 0
+    if (!stack?.itemId) continue
+    const prev = before.cargo.find((s) => s?.itemId === stack.itemId)?.qty ?? 0
     const delta = stack.qty - prev
     if (delta > 0) gained.push({ itemId: stack.itemId, qty: delta })
   }
@@ -135,6 +136,9 @@ function enterPhase(
     })
     squad.missionProgress = 0
     squad.missionTargetId = null
+    squad.missionTargetX = 0
+    squad.missionTargetY = 0
+    squad.missionTargetDurationMs = 0
     squad.missionElapsedMs = 0
     squad.nextEventInMs = EVENT_INTERVAL_MS
     squad.missionEvents = []
@@ -195,25 +199,32 @@ function advancePhase(
   if (currentIdx < 0) return
   const nextPhase = phases[currentIdx + 1] ?? 'AtBase'
 
+  // Select target before Deploying so coordinates are available for animation
+  if (nextPhase === 'Deploying') {
+    let target = selectTargetForSquad(state.missionPool, squad.doctrine)
+    if (target) {
+      removeTargetFromPool(state.missionPool, target.id)
+      squad.missionTargetId = target.id
+      squad.missionTargetX = target.x
+      squad.missionTargetY = target.y
+      squad.missionTargetDurationMs = target.durationMs
+    } else {
+      regenerateMissionPool(state.missionPool, state.seed)
+      target = selectTargetForSquad(state.missionPool, squad.doctrine)!
+      removeTargetFromPool(state.missionPool, target.id)
+      squad.missionTargetId = target.id
+      squad.missionTargetX = target.x
+      squad.missionTargetY = target.y
+      squad.missionTargetDurationMs = target.durationMs
+    }
+  }
+
   switch (nextPhase) {
     case 'Deploying':
       enterPhase(state, squad, 'Deploying', DEPLOYING_MS, rng)
       break
     case 'InMission': {
-      // Select target from pool
-      const target = selectTargetForSquad(state.missionPool, squad.doctrine)
-      if (target) {
-        removeTargetFromPool(state.missionPool, target.id)
-        squad.missionTargetId = target.id
-        enterPhase(state, squad, 'InMission', target.durationMs, rng)
-      } else {
-        // Pool empty — regenerate
-        regenerateMissionPool(state.missionPool, state.seed)
-        const newTarget = selectTargetForSquad(state.missionPool, squad.doctrine)!
-        removeTargetFromPool(state.missionPool, newTarget.id)
-        squad.missionTargetId = newTarget.id
-        enterPhase(state, squad, 'InMission', newTarget.durationMs, rng)
-      }
+      enterPhase(state, squad, 'InMission', squad.missionTargetDurationMs || 45000, rng)
       break
     }
     case 'Returning':
@@ -237,29 +248,10 @@ function step(state: GameState, rng: Rng): void {
 
     if (squad.phase === 'InMission') {
       squad.missionElapsedMs += TICK_STEP_MS
-      squad.missionProgress = Math.min(
-        1,
-        squad.missionElapsedMs / (squad.missionTargetId
-          ? state.missionPool.find((t) => t.id === squad.missionTargetId)?.durationMs
-          ?? 45000
-          : 45000),
-      )
+      const targetDuration = squad.missionTargetDurationMs || 45000
+      squad.missionProgress = Math.min(1, squad.missionElapsedMs / targetDuration)
       squad.nextEventInMs -= TICK_STEP_MS
-
-      const targetDuration = state.missionPool.find(
-        (t) => t.id === squad.missionTargetId,
-      )?.durationMs ?? 45000
-      const targetConfig = state.missionPool.find(
-        (t) => t.id === squad.missionTargetId,
-      )
-      const config = targetConfig
-        ? {
-            eventRateModifier: 1,
-            penaltyPercent: 10,
-            lootMultiplier: 1,
-          }
-        : { eventRateModifier: 1, penaltyPercent: 10, lootMultiplier: 1 }
-      squad.nextEventInMs -= Math.round(TICK_STEP_MS / config.eventRateModifier)
+      squad.nextEventInMs -= TICK_STEP_MS
 
       if (squad.nextEventInMs <= 0) {
         const evt = rollMissionEvent(
@@ -267,16 +259,18 @@ function step(state: GameState, rng: Rng): void {
           rng,
           state.tick,
           state.simTimeMs,
-          targetConfig?.type ?? 'RECON',
+          squad.doctrine,
         )
         squad.missionEvents.push(evt)
         pushEvent(state, evt)
         squad.nextEventInMs = EVENT_INTERVAL_MS
       }
+    }
 
-      squad.missionProgress = Math.min(
-        1,
-        squad.missionElapsedMs / targetDuration,
+    if (squad.phase === 'Deploying') {
+      squad.missionProgress = Math.max(
+        0,
+        1 - squad.phaseTimeLeftMs / DEPLOYING_MS,
       )
     }
 

@@ -58,13 +58,9 @@ export function drawMap(
     // Check if any squad has this node as objective
     let isTarget = false
     for (const squad of state.squads) {
-      if (squad.missionTargetId) {
-        // Find target by nodeId
-        const target = state.missionPool.find((t) => t.id === squad.missionTargetId)
-        if (target && target.nodeId === node.id) {
-          isTarget = true
-          break
-        }
+      if (squad.missionTargetId && squad.missionTargetX === node.x && squad.missionTargetY === node.y) {
+        isTarget = true
+        break
       }
     }
 
@@ -92,16 +88,19 @@ export function drawMap(
     let py = hq.y
 
     if (squad.missionTargetId) {
-      const target = state.missionPool.find((t) => t.id === squad.missionTargetId)
-      if (target) {
-        const progress =
-          squad.phase === 'Returning'
-            ? squad.missionProgress
-            : squad.phase === 'InMission'
-              ? squad.missionProgress
-              : 0
-        px = hq.x + (target.x - hq.x) * progress
-        py = hq.y + (target.y - hq.y) * progress
+      const tx = squad.missionTargetX
+      const ty = squad.missionTargetY
+      if (squad.phase === 'Deploying') {
+        const progress = squad.missionProgress
+        px = hq.x + (tx - hq.x) * progress
+        py = hq.y + (ty - hq.y) * progress
+      } else if (squad.phase === 'InMission') {
+        px = tx
+        py = ty
+      } else if (squad.phase === 'Returning') {
+        const progress = squad.missionProgress
+        px = tx + (hq.x - tx) * (1 - progress)
+        py = ty + (hq.y - ty) * (1 - progress)
       }
     }
 
