@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { createGame } from './game.js'
+import { objectiveLabel } from './content.js'
 import { BASE_PAUSE_MS, DEPLOYING_MS, MISSION_REPORT_MS, RETURNING_MS, TICK_STEP_MS } from './config.js'
 
 describe('createGame', () => {
@@ -65,10 +66,15 @@ describe('createGame', () => {
     }
   })
 
-  it('mission pool starts with targets', () => {
+  it('mission pool starts with 4 unique targets on non-hq nodes', () => {
     const game = createGame({ seed: 7 })
     const state = game.getState()
-    expect(state.missionPool).toHaveLength(3)
+    expect(state.missionPool).toHaveLength(4)
+    const nodeIds = state.missionPool.map((t) => t.nodeId)
+    // Each target on a different node (no duplicates)
+    expect(new Set(nodeIds).size).toBe(4)
+    // No hq in mission pool
+    expect(nodeIds).not.toContain('hq')
     for (const target of state.missionPool) {
       expect(['ASSAULT', 'RECON', 'PATROL', 'SALVAGE']).toContain(target.type)
     }
@@ -97,5 +103,34 @@ describe('createGame', () => {
     const inMission = state.squads.filter((s) => s.phase === 'InMission')
     // At least one should be in mission or completed one
     expect(state.missionIndex).toBeGreaterThan(0)
+  })
+
+  it('squad stores correct missionTargetLabel after deployment', () => {
+    const game = createGame({ seed: 42 })
+    // Fast-forward past AtBase + Deploying to InMission
+    const deployTicks = Math.ceil((BASE_PAUSE_MS + DEPLOYING_MS) / TICK_STEP_MS) + 2
+    for (let i = 0; i < deployTicks; i++) game.tick(TICK_STEP_MS)
+    const state = game.getState()
+    const inMission = state.squads.find((s) => s.phase === 'InMission' || s.phase === 'Deploying')
+    expect(inMission).toBeDefined()
+    console.log('inMission:', inMission!.id, 'phase:', inMission!.phase, 'label:', inMission!.missionTargetLabel, 'x:', inMission!.missionTargetX, 'y:', inMission!.missionTargetY)
+    // missionTargetLabel must be set and NOT the fallback
+    expect(inMission!.missionTargetLabel).not.toBeNull()
+    expect(inMission!.missionTargetLabel).not.toBe('OLD MINES')
+    // Should match an actual map node label
+    const labels = state.mapNodes.map((n) => n.label)
+    expect(labels).toContain(inMission!.missionTargetLabel)
+  })
+
+  it('squad missionTargetLabel is cleared when returning to base', () => {
+    const game = createGame({ seed: 1 })
+    const totalTicks = Math.ceil(90000 / TICK_STEP_MS) + 5
+    for (let i = 0; i < totalTicks; i++) game.tick(TICK_STEP_MS)
+    const state = game.getState()
+    const atBase = state.squads.find((s) => s.phase === 'AtBase')
+    if (atBase) {
+      expect(atBase.missionTargetId).toBeNull()
+      expect(atBase.missionTargetLabel).toBeNull()
+    }
   })
 })

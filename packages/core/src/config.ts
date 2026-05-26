@@ -7,7 +7,7 @@ export const EVENT_INTERVAL_MS = 8000
 export const EVENT_LOG_MAX = 20
 export const MAP_WIDTH = 800
 export const MAP_HEIGHT = 500
-export const MISSION_POOL_SIZE = 3
+export const MISSION_POOL_SIZE = 4
 export const READINESS_EXTEND_RESUPPLY = 5000 // extend resupply by 5s if readiness < 80%
 
 export interface MissionTypeConfig {

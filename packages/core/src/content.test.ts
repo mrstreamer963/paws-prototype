@@ -61,7 +61,7 @@ describe('regenerateMissionPool', () => {
       id: 'old-3', nodeId: 'hq', label: 'HQ', type: 'RECON', x: 120, y: 380, durationMs: 45000,
     }]
     regenerateMissionPool(pool, 99)
-    expect(pool).toHaveLength(3)
+    expect(pool).toHaveLength(4)
     for (const t of pool) {
       expect(t.type).toMatch(/^(ASSAULT|RECON|PATROL|SALVAGE)$/)
       expect(t.id).not.toMatch(/^old-/)

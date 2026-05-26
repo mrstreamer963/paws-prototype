@@ -136,6 +136,7 @@ function enterPhase(
     })
     squad.missionProgress = 0
     squad.missionTargetId = null
+    squad.missionTargetLabel = null
     squad.missionTargetX = 0
     squad.missionTargetY = 0
     squad.missionTargetDurationMs = 0
@@ -205,6 +206,7 @@ function advancePhase(
     if (target) {
       removeTargetFromPool(state.missionPool, target.id)
       squad.missionTargetId = target.id
+      squad.missionTargetLabel = target.label
       squad.missionTargetX = target.x
       squad.missionTargetY = target.y
       squad.missionTargetDurationMs = target.durationMs
@@ -213,6 +215,7 @@ function advancePhase(
       target = selectTargetForSquad(state.missionPool, squad.doctrine)!
       removeTargetFromPool(state.missionPool, target.id)
       squad.missionTargetId = target.id
+      squad.missionTargetLabel = target.label
       squad.missionTargetX = target.x
       squad.missionTargetY = target.y
       squad.missionTargetDurationMs = target.durationMs

@@ -137,6 +137,7 @@ export function createInitialSquads(): SquadState[] {
     phaseTimeLeftMs: 0,
     missionProgress: 0,
     missionTargetId: null,
+    missionTargetLabel: null,
     missionTargetX: 0,
     missionTargetY: 0,
     missionTargetDurationMs: 0,
@@ -214,9 +215,9 @@ function generateMissionPool(rng: ReturnType<typeof createRng>, _seed: number): 
   const pool: MissionTarget[] = []
   const pois = MAP_NODES.filter((n) => n.id !== 'hq')
 
-  for (let i = 0; i < MISSION_POOL_SIZE; i++) {
+  for (let i = 0; i < pois.length; i++) {
     const type = weightedRoll(types, weights, rng)
-    const node = pois[rng.int(0, pois.length - 1)]
+    const node = pois[i]
     pool.push({
       id: `target-${i}`,
       nodeId: node.id,
@@ -272,9 +273,9 @@ export function regenerateMissionPool(
   const pois = MAP_NODES.filter((n) => n.id !== 'hq')
   pool.length = 0
 
-  for (let i = 0; i < MISSION_POOL_SIZE; i++) {
+  for (let i = 0; i < pois.length; i++) {
     const type = weightedRoll(types, weights, rng)
-    const node = pois[rng.int(0, pois.length - 1)]
+    const node = pois[i]
     pool.push({
       id: `target-${Date.now()}-${i}`,
       nodeId: node.id,
