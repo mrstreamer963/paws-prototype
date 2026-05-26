@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { createGame } from './game.js'
-import { BASE_PAUSE_MS, TICK_STEP_MS } from './config.js'
+import { BASE_PAUSE_MS, DEPLOYING_MS, MISSION_REPORT_MS, RETURNING_MS, TICK_STEP_MS } from './config.js'
 
 describe('createGame', () => {
   it('starts with 2 squads at AtBase', () => {
@@ -72,6 +72,20 @@ describe('createGame', () => {
     for (const target of state.missionPool) {
       expect(['ASSAULT', 'RECON', 'PATROL', 'SALVAGE']).toContain(target.type)
     }
+  })
+
+  it('lastReport is cleared after MissionReport → AtBase', () => {
+    const game = createGame({ seed: 1 })
+    // Fast-forward to let a squad complete InMission, enter MissionReport
+    // Full cycle: AtBase(15s) + Deploying(2s) + InMission(max 60s) + Returning(5s) + MissionReport(5s) = ~87s
+    const totalTicks = Math.ceil(90000 / TICK_STEP_MS) + 5
+    for (let i = 0; i < totalTicks; i++) game.tick(TICK_STEP_MS)
+    const state = game.getState()
+    // At least one squad should be back at AtBase
+    const atBase = state.squads.find((s) => s.phase === 'AtBase')
+    expect(atBase).toBeDefined()
+    // lastReport must be null after debrief is done
+    expect(state.lastReport).toBeNull()
   })
 
   it('squads progress through InMission phase', () => {

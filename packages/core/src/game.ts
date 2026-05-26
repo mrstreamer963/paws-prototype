@@ -138,6 +138,7 @@ function enterPhase(
     squad.missionElapsedMs = 0
     squad.nextEventInMs = EVENT_INTERVAL_MS
     squad.missionEvents = []
+    state.lastReport = null
 
     // Extend resupply if readiness low
     const finalReadiness = computeReadiness(squad)
@@ -192,8 +193,7 @@ function advancePhase(
   ]
   const currentIdx = phases.indexOf(squad.phase)
   if (currentIdx < 0) return
-  const nextPhase = phases[currentIdx + 1]
-  if (!nextPhase) return
+  const nextPhase = phases[currentIdx + 1] ?? 'AtBase'
 
   switch (nextPhase) {
     case 'Deploying':
@@ -206,8 +206,6 @@ function advancePhase(
         removeTargetFromPool(state.missionPool, target.id)
         squad.missionTargetId = target.id
         enterPhase(state, squad, 'InMission', target.durationMs, rng)
-        // Update map objective display to target position
-        state.lastReport = { ...state.lastReport } // trigger update
       } else {
         // Pool empty — regenerate
         regenerateMissionPool(state.missionPool, state.seed)
