@@ -1,11 +1,5 @@
 import type { GamePhase } from '@paws/core'
 
-// const totalMinutes = simTimeMs * 60000;
-// const m = Math.floor(totalMinutes % 60);
-// const h = Math.floor((totalMinutes / 60) % 24);
-// const d = Math.floor(totalMinutes / (60 * 24));
-
-
 export function formatSimTime(simTimeMs: number): string {
   // Коэффициент замедления: 5 минут реального времени = 5 секунд виртуального
   const timeScale = 60
