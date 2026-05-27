@@ -33,8 +33,17 @@ export function useGameLoop(): { state: GameState; isPlaying: boolean; speed: nu
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  if (state.tick > 0 && state.tick % 100 === 0) {
-    console.log('tick:', state.tick, 'squads:', state.squads.length, state.squads.map(s => ({ id: s.id, phase: s.phase })))
+  if (state.tick > 0 && state.tick % 500 === 0) {
+    const squadInfo = state.squads.map(s => ({
+      id: s.id,
+      phase: s.phase,
+      cargo: s.cargo.filter(c => c.qty > 0),
+      readiness: Math.round(s.readiness),
+    }))
+    console.log('tick:', state.tick,
+      'baseStorage:', state.baseStorage.filter(s => s.qty > 0),
+      'squads:', squadInfo
+    )
   }
   return { state, isPlaying: gameRef.current.isPlaying, speed: gameRef.current.speed, setPlaying, cycleSpeed }
 }

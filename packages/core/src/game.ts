@@ -21,7 +21,7 @@ import {
 import { itemsLostDuringMission, rollMissionEvent } from './events.js'
 import { createRng, type Rng } from './rng.js'
 import { computeReadiness } from './readiness.js'
-import { resupplySquad } from './resupply.js'
+import { resupplySquad, depositCargoToBase } from './resupply.js'
 import type {
   GameEvent,
   GameState,
@@ -126,6 +126,7 @@ function enterPhase(
   })
 
   if (phase === 'AtBase') {
+    depositCargoToBase(squad, state.baseStorage)
     resupplySquad(squad, state.baseStorage)
     pushEvent(state, {
       tick: state.tick,

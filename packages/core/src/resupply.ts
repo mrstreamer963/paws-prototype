@@ -8,6 +8,24 @@ function takeFromStorage(storage: ItemStack[], itemId: string): boolean {
   return true
 }
 
+function findOrPush(storage: ItemStack[], itemId: string): ItemStack {
+  let stack = storage.find((s) => s.itemId === itemId)
+  if (!stack) {
+    stack = { itemId, qty: 0 }
+    storage.push(stack)
+  }
+  return stack
+}
+
+export function depositCargoToBase(squad: SquadState, baseStorage: ItemStack[]): void {
+  for (const cargoStack of squad.cargo) {
+    if (cargoStack.qty <= 0) continue
+    const stack = findOrPush(baseStorage, cargoStack.itemId)
+    stack.qty += cargoStack.qty
+  }
+  squad.cargo = []
+}
+
 export function resupplySquad(squad: SquadState, baseStorage: ItemStack[]): void {
   for (const unit of squad.units) {
     const template = getTemplateSlotsForUnit(unit.id)
