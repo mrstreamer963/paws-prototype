@@ -4,7 +4,32 @@ import { objectiveLabel } from './content.js'
 import { BASE_PAUSE_MS, DEPLOYING_MS, MISSION_REPORT_MS, RETURNING_MS, TICK_STEP_MS } from './config.js'
 
 describe('createGame', () => {
-  it('starts with 2 squads at AtBase', () => {
+  it('all squads start AtBase with full resupply timer', () => {
+    const game = createGame({ seed: 1 })
+    const state = game.getState()
+    expect(state.squads).toHaveLength(3)
+    for (const squad of state.squads) {
+      expect(squad.phase).toBe('AtBase')
+      expect(squad.phaseTimeLeftMs).toBe(BASE_PAUSE_MS)
+    }
+  })
+
+  it('logs all squads standing by at start', () => {
+    const game = createGame({ seed: 1 })
+    const state = game.getState()
+    expect(state.eventLog[0].message).toBe('KOBRA-1, KOBRA-2, KOBRA-3 standing by')
+  })
+
+  it('squads stay AtBase until resupply timer expires', () => {
+    const game = createGame({ seed: 1 })
+    game.tick(TICK_STEP_MS)
+    const state = game.getState()
+    for (const squad of state.squads) {
+      expect(squad.phase).toBe('AtBase')
+    }
+  })
+
+  it('starts with 3 squads at AtBase', () => {
     const game = createGame({ seed: 1 })
     const state = game.getState()
     expect(state.squads).toHaveLength(3)

@@ -322,18 +322,17 @@ export function createGame(options?: { seed?: number }): Game {
     missionPool: initialMissionPool,
   }
 
-  // Mark KOBRA-1 as starting resupply first
-  squads[0].phase = 'AtBase'
-  squads[0].phaseTimeLeftMs = BASE_PAUSE_MS
-  squads[1].phase = 'AtBase'
-  squads[1].phaseTimeLeftMs = BASE_PAUSE_MS
+  for (const squad of squads) {
+    squad.phase = 'AtBase'
+    squad.phaseTimeLeftMs = BASE_PAUSE_MS
+  }
 
   pushEvent(state, {
     tick: 0,
     simTimeMs: 0,
-    squadId: 'KOBRA-1',
+    squadId: squads[0].id,
     type: 'phase',
-    message: 'KOBRA-1 and KOBRA-2 standing by',
+    message: `${squads.map((s) => s.name).join(', ')} standing by`,
   })
 
   let accumulated = 0
