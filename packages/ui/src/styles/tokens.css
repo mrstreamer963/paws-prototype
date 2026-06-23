@@ -1,0 +1,36 @@
+:root {
+  --bg: #0b0f12;
+  --panel: #121820;
+  --panel-elevated: #161e28;
+  --border: #1e2a36;
+  --accent: #4ecdc4;
+  --warn: #f0a500;
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  --text: #c8d4dc;
+  --muted: #6b7d8a;
+  --font: 'Rajdhani', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+button {
+  font-family: inherit;
+}
+
+.error-boundary {
+  padding: 2rem;
+  color: var(--danger);
+}

@@ -1,0 +1,9 @@
+{
+  "name": "paws-prototype",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @paws/ui dev",
+    "test": "pnpm -r test",
+    "build": "pnpm -r build"
+  }
+}
