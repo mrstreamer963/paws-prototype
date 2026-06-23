@@ -1,0 +1,9 @@
+{
+  "plugins": {
+    "local": {
+      "superpowers": {
+        "path": ".superpowers/.claude-plugin"
+      }
+    }
+  }
+}

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAWS Prototype — Squad UI Mockup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0c10;color:#b0b8c4;font-family:'Segoe UI',system-ui,sans-serif;padding:32px;display:flex;justify-content:center}
+.app{max-width:1200px;width:100%}
+
+/* header */
+.header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border:1px solid #1e2430;border-radius:8px;margin-bottom:24px;background:linear-gradient(135deg,#0f1219,#151b28)}
+.header h1{color:#e8edf5;font-size:20px;font-weight:600;letter-spacing:.5px}
+.header h1 span{color:#f4a261}
+.status-bar{display:flex;gap:24px;font-size:13px}
+.status-bar .stat{display:flex;align-items:center;gap:8px}
+.status-bar .dot{width:8px;height:8px;border-radius:50%}
+.dot.green{background:#2ecc71;box-shadow:0 0 8px #2ecc7180}
+.dot.yellow{background:#f4a261;box-shadow:0 0 8px #f4a26180}
+.dot.red{background:#e74c3c;box-shadow:0 0 8px #e74c3c80}
+
+/* grid */
+.squad-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+
+/* squad card */
+.squad-card{background:linear-gradient(180deg,#121822,#0d1118);border:1px solid #1e2a3a;border-radius:10px;padding:18px;position:relative}
+.squad-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:10px 10px 0 0}
+.squad-card.assault::before{background:#e74c3c}
+.squad-card.recon::before{background:#3498db}
+.squad-card.salvage::before{background:#f4a261}
+.squad-card.medic::before{background:#2ecc71}
+
+.squad-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.squad-name{display:flex;align-items:center;gap:10px}
+.squad-name h2{font-size:16px;color:#e8edf5;font-weight:600}
+.squad-name .role{font-size:11px;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.role.assault{background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40}
+.role.recon{background:#3498db20;color:#3498db;border:1px solid #3498db40}
+.role.salvage{background:#f4a26120;color:#f4a261;border:1px solid #f4a26140}
+.role.medic{background:#2ecc7120;color:#2ecc71;border:1px solid #2ecc7140}
+
+.readiness-ring{position:relative;width:48px;height:48px;flex-shrink:0}
+.readiness-ring svg{width:48px;height:48px;transform:rotate(-90deg)}
+.readiness-ring .bg{fill:none;stroke:#1e2a3a;stroke-width:3}
+.readiness-ring .fg{fill:none;stroke-width:3;stroke-linecap:round}
+.readiness-ring .label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#e8edf5}
+
+/* units */
+.units{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.unit{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#0d111a;border-radius:6px;border:1px solid #1a2332;font-size:12px;cursor:pointer;transition:.15s}
+.unit:hover{border-color:#3a4a6a;background:#141c2a}
+.unit .avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.unit.engineer .avatar{background:#8e44ad}
+.unit.medic .avatar{background:#2ecc71}
+.unit.sniper .avatar{background:#e67e22}
+.unit.scout .avatar{background:#3498db}
+.unit.heavy .avatar{background:#e74c3c}
+.unit .name{color:#c8d0dc}
+.unit .status{font-size:10px;padding:1px 5px;border-radius:3px}
+.unit .status.ok{background:#2ecc7120;color:#2ecc71}
+.unit .status.warn{background:#f4a26120;color:#f4a261}
+.unit .status.crit{background:#e74c3c20;color:#e74c3c}
+.unit .slots{display:flex;gap:2px;margin-left:4px}
+.unit .slot{width:16px;height:16px;border-radius:3px;border:1px solid #1e2a3a;display:flex;align-items:center;justify-content:center;font-size:8px;background:#0d1118}
+.unit .slot.filled{background:#1a2a40;border-color:#2a4a6a}
+
+/* shared cargo */
+.cargo{display:flex;gap:12px;padding:8px 10px;background:#0a0e14;border-radius:6px;border:1px solid #16202e;font-size:12px;margin-top:8px;flex-wrap:wrap}
+.cargo .item{display:flex;align-items:center;gap:4px;color:#8899b0}
+.cargo .item .val{color:#c8d0dc;font-weight:600}
+.cargo .item .low{color:#f4a261}
+
+/* supply status */
+.supply{display:flex;gap:12px;margin-top:8px;font-size:11px;flex-wrap:wrap}
+.supply .tag{padding:2px 8px;border-radius:4px;display:flex;align-items:center;gap:4px}
+.supply .tag.ok{background:#2ecc7120;color:#2ecc71;border:1px solid #2ecc7140}
+.supply .tag.low{background:#f4a26120;color:#f4a261;border:1px solid #f4a26140}
+.supply .tag.missing{background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40}
+
+/* template panel */
+.template-panel{background:#0f141e;border:1px solid #1e2a3a;border-radius:10px;padding:18px;margin-bottom:24px}
+.template-panel h3{font-size:14px;color:#e8edf5;margin-bottom:12px}
+.template-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.template-select{background:#0d111a;border:1px solid #1e2a3a;color:#b0b8c4;padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer}
+.template-select:focus{outline:none;border-color:#4a6a8a}
+.template-btn{padding:6px 16px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.template-btn.primary{background:#2e6bcc;color:#fff}
+.template-btn.primary:hover{background:#3a7adc}
+.template-btn.outline{background:transparent;border:1px solid #2e6bcc;color:#5a8adc}
+.template-btn.outline:hover{background:#2e6bcc20}
+.template-btn.danger{background:#c0392b;color:#fff}
+.template-btn.danger:hover{background:#d94a3a}
+
+/* doctrine presets */
+.presets{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.preset{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 14px;background:#0d111a;border:1px solid #1a2332;border-radius:8px;cursor:pointer;transition:.15s;font-size:11px;min-width:80px}
+.preset:hover{border-color:#3a5a7a;background:#141c2a}
+.preset.active{border-color:#4a7acc;background:#1a2840}
+.preset .icon{font-size:20px}
+.preset .label{color:#8899b0}
+.preset .desc{font-size:10px;color:#5a6a80}
+
+/* trait badges */
+.traits{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.trait{padding:2px 8px;border-radius:4px;font-size:10px;background:#1a1530;border:1px solid #2a1a4a;color:#a080e0}
+
+/* resupply timer */
+.timer{font-size:11px;padding:4px 10px;background:#1a2028;border-radius:4px;border:1px solid #1e2a3a;display:inline-flex;align-items:center;gap:6px}
+.timer .pulse{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* tab bar */
+.tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid #1e2a3a;padding-bottom:0}
+.tab{padding:10px 20px;font-size:13px;color:#5a6a80;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.tab:hover{color:#b0b8c4}
+.tab.active{color:#e8edf5;border-bottom-color:#4a7acc}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- header -->
+<div class="header">
+  <div>
+    <h1>◈ PAWS <span>PROTOCOL</span></h1>
+    <div style="font-size:12px;color:#5a6a80;margin-top:4px">TACTICAL OPERATIONS · FELINE OPERATORS</div>
+  </div>
+  <div class="status-bar">
+    <div class="stat"><span class="dot green"></span>HQ ONLINE</div>
+    <div class="stat"><span class="dot yellow"></span>4/6 SQUADS ACTIVE</div>
+    <div class="stat"><span class="dot red"></span>SUPPLY LOW</div>
+    <div class="stat" style="color:#5a6a80">CYCLE 47</div>
+  </div>
+</div>
+
+<!-- tabs -->
+<div class="tabs">
+  <div class="tab active">SQUADS</div>
+  <div class="tab">TEMPLATES</div>
+  <div class="tab">BASE</div>
+  <div class="tab">LOGISTICS</div>
+  <div class="tab">DOCTRINES</div>
+</div>
+
+<!-- template panel -->
+<div class="template-panel">
+  <h3>⚙ LOADOUT TEMPLATE · KOBRA-1</h3>
+  <div class="template-row">
+    <select class="template-select">
+      <option>ASSAULT — Heavy Armor, AR, Grenades</option>
+      <option selected>RECON — Light Armor, DMR, Drone, Scanner</option>
+      <option>SALVAGE — Cargo Packs, Cutters, Repair Kits</option>
+      <option>MEDEVAC — Medkits, Stabilizers, Evac Beacon</option>
+    </select>
+    <button class="template-btn primary">▶ APPLY</button>
+    <button class="template-btn outline">✎ EDIT</button>
+    <button class="template-btn outline">⏺ SAVE AS</button>
+    <div class="timer"><span class="pulse">●</span> RESUPPLY IN 00:43</div>
+  </div>
+  <div class="presets">
+    <div class="preset active">
+      <div class="icon">⚡</div>
+      <div class="label">ASSAULT</div>
+      <div class="desc">CQB · Breach</div>
+    </div>
+    <div class="preset">
+      <div class="icon">👁</div>
+      <div class="label">RECON</div>
+      <div class="desc">Stealth · Intel</div>
+    </div>
+    <div class="preset">
+      <div class="icon">📦</div>
+      <div class="label">SALVAGE</div>
+      <div class="desc">Loot · Scrap</div>
+    </div>
+    <div class="preset">
+      <div class="icon">⚕</div>
+      <div class="label">MEDEVAC</div>
+      <div class="desc">Evac · Trauma</div>
+    </div>
+    <div class="preset">
+      <div class="icon">🔧</div>
+      <div class="label">ENGINEER</div>
+      <div class="desc">Repair · Build</div>
+    </div>
+  </div>
+</div>
+
+<!-- squad grid -->
+<div class="squad-grid">
+  <!-- KOBRA-1 -->
+  <div class="squad-card assault">
+    <div class="squad-header">
+      <div class="squad-name">
+        <h2>KOBRA-1</h2>
+        <span class="role assault">ASSAULT</span>
+      </div>
+      <div class="readiness-ring">
+        <svg viewBox="0 0 48 48">
+          <circle class="bg" cx="24" cy="24" r="20"/>
+          <circle class="fg" cx="24" cy="24" r="20" stroke="#2ecc71" stroke-dasharray="126" stroke-dashoffset="32" />
+        </svg>
+        <div class="label">84%</div>
+      </div>
+    </div>
+    <div class="units">
+      <div class="unit heavy">
+        <div class="avatar">H</div>
+        <div>
+          <div class="name">MAVERICK</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🛡</div>
+            <div class="slot filled">💊</div>
+            <div class="slot">□</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+      <div class="unit engineer">
+        <div class="avatar">E</div>
+        <div>
+          <div class="name">WHISKEY</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🛡</div>
+            <div class="slot filled">🔧</div>
+            <div class="slot filled">⚡</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+      <div class="unit medic">
+        <div class="avatar">M</div>
+        <div>
+          <div class="name">PATCH</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🛡</div>
+            <div class="slot filled">💉</div>
+            <div class="slot filled">💊</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+      <div class="unit heavy">
+        <div class="avatar">H</div>
+        <div>
+          <div class="name">TANK</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🛡</div>
+            <div class="slot filled">🛡</div>
+            <div class="slot filled">💊</div>
+          </div>
+        </div>
+        <span class="status warn">INJ</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="supply">
+        <span class="tag ok">AMMO 240</span>
+        <span class="tag low">FUEL 12</span>
+        <span class="tag ok">MEDS 4</span>
+        <span class="tag missing">BATTERY</span>
+      </div>
+      <button class="template-btn outline" style="font-size:10px;padding:3px 10px">RESUPPLY</button>
+    </div>
+    <div class="cargo">
+      <span class="item">📦 <span class="val">42</span> / 80 kg</span>
+      <span class="item">🔩 <span class="val">8</span></span>
+      <span class="item">💡 <span class="val">3</span></span>
+    </div>
+  </div>
+
+  <!-- GHOST-3 -->
+  <div class="squad-card recon">
+    <div class="squad-header">
+      <div class="squad-name">
+        <h2>GHOST-3</h2>
+        <span class="role recon">RECON</span>
+      </div>
+      <div class="readiness-ring">
+        <svg viewBox="0 0 48 48">
+          <circle class="bg" cx="24" cy="24" r="20"/>
+          <circle class="fg" cx="24" cy="24" r="20" stroke="#f4a261" stroke-dasharray="126" stroke-dashoffset="52" />
+        </svg>
+        <div class="label">59%</div>
+      </div>
+    </div>
+    <div class="units">
+      <div class="unit sniper">
+        <div class="avatar">S</div>
+        <div>
+          <div class="name">LONGBOW</div>
+          <div class="slots">
+            <div class="slot filled">🔭</div>
+            <div class="slot filled">🕶</div>
+            <div class="slot filled">🔋</div>
+            <div class="slot filled">🔋</div>
+          </div>
+        </div>
+        <span class="status warn">AMMO</span>
+      </div>
+      <div class="unit scout">
+        <div class="avatar">S</div>
+        <div>
+          <div class="name">VISION</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🕶</div>
+            <div class="slot filled">🛸</div>
+            <div class="slot filled">📡</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+      <div class="unit engineer">
+        <div class="avatar">E</div>
+        <div>
+          <div class="name">SPARK</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🔧</div>
+            <div class="slot filled">⚡</div>
+            <div class="slot">□</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="supply">
+        <span class="tag low">AMMO 48</span>
+        <span class="tag ok">FUEL 28</span>
+        <span class="tag missing">MEDS</span>
+        <span class="tag ok">DRONE 1</span>
+      </div>
+      <button class="template-btn outline" style="font-size:10px;padding:3px 10px">RESUPPLY</button>
+    </div>
+    <div class="cargo">
+      <span class="item">📦 <span class="val">12</span> / 40 kg</span>
+      <span class="item">📡 <span class="val">2</span></span>
+    </div>
+    <div class="traits">
+      <span class="trait">⚠ КЛОН X3</span>
+      <span class="trait">🧠 БОИТСЯ ДРОНОВ</span>
+      <span class="trait">⚡ +СКОРОСТЬ</span>
+    </div>
+  </div>
+
+  <!-- MULE-7 -->
+  <div class="squad-card salvage">
+    <div class="squad-header">
+      <div class="squad-name">
+        <h2>MULE-7</h2>
+        <span class="role salvage">SALVAGE</span>
+      </div>
+      <div class="readiness-ring">
+        <svg viewBox="0 0 48 48">
+          <circle class="bg" cx="24" cy="24" r="20"/>
+          <circle class="fg" cx="24" cy="24" r="20" stroke="#2ecc71" stroke-dasharray="126" stroke-dashoffset="20" />
+        </svg>
+        <div class="label">92%</div>
+      </div>
+    </div>
+    <div class="units">
+      <div class="unit heavy">
+        <div class="avatar">H</div>
+        <div>
+          <div class="name">BRUTE</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🛡</div>
+            <div class="slot filled">📦</div>
+            <div class="slot filled">📦</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+      <div class="unit engineer">
+        <div class="avatar">E</div>
+        <div>
+          <div class="name">WELDER</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">🔧</div>
+            <div class="slot filled">🔧</div>
+            <div class="slot filled">⚡</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+      <div class="unit medic">
+        <div class="avatar">M</div>
+        <div>
+          <div class="name">BANDAGE</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">💉</div>
+            <div class="slot filled">📦</div>
+            <div class="slot">□</div>
+          </div>
+        </div>
+        <span class="status ok">OK</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="supply">
+        <span class="tag ok">AMMO 180</span>
+        <span class="tag ok">FUEL 36</span>
+        <span class="tag ok">MEDS 6</span>
+        <span class="tag ok">CUTTER 2</span>
+      </div>
+      <button class="template-btn outline" style="font-size:10px;padding:3px 10px">RESUPPLY</button>
+    </div>
+    <div class="cargo">
+      <span class="item">📦 <span class="val">124</span> / 200 kg</span>
+      <span class="item">🔩 <span class="val">36</span></span>
+      <span class="item">💡 <span class="val">12</span></span>
+      <span class="item">🧪 <span class="val">4</span></span>
+    </div>
+  </div>
+
+  <!-- FLATLINE-2 -->
+  <div class="squad-card medic">
+    <div class="squad-header">
+      <div class="squad-name">
+        <h2>FLATLINE-2</h2>
+        <span class="role medic">MEDEVAC</span>
+      </div>
+      <div class="readiness-ring">
+        <svg viewBox="0 0 48 48">
+          <circle class="bg" cx="24" cy="24" r="20"/>
+          <circle class="fg" cx="24" cy="24" r="20" stroke="#e74c3c" stroke-dasharray="126" stroke-dashoffset="82" />
+        </svg>
+        <div class="label">35%</div>
+      </div>
+    </div>
+    <div class="units">
+      <div class="unit medic">
+        <div class="avatar">M</div>
+        <div>
+          <div class="name">FLUX</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">💉</div>
+            <div class="slot filled">💊</div>
+            <div class="slot">□</div>
+          </div>
+        </div>
+        <span class="status crit">WIA</span>
+      </div>
+      <div class="unit scout">
+        <div class="avatar">S</div>
+        <div>
+          <div class="name">ECHO</div>
+          <div class="slots">
+            <div class="slot filled">⚔</div>
+            <div class="slot filled">📡</div>
+            <div class="slot">□</div>
+            <div class="slot">□</div>
+          </div>
+        </div>
+        <span class="status crit">WIA</span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="supply">
+        <span class="tag missing">AMMO</span>
+        <span class="tag low">FUEL 6</span>
+        <span class="tag missing">MEDS</span>
+        <span class="tag missing">EVAC</span>
+      </div>
+      <button class="template-btn danger" style="font-size:10px;padding:3px 10px">⚠ EVAC</button>
+    </div>
+    <div class="cargo">
+      <span class="item">📦 <span class="val">4</span> / 30 kg</span>
+    </div>
+    <div class="traits">
+      <span class="trait">⚠ ДЕГРАДАЦИЯ ПАМЯТИ</span>
+      <span class="trait">🧬 КЛОН X7</span>
+    </div>
+  </div>
+</div>
+
+<!-- log -->
+<div style="margin-top:16px;padding:12px 16px;background:#0a0e14;border:1px solid #1e2a3a;border-radius:8px;font-size:12px;color:#5a6a80;display:flex;gap:16px">
+  <span>◈ [00:43] KOBRA-1: resupply complete</span>
+  <span>◈ [02:12] GHOST-3: contact lost · sector 7G</span>
+  <span>◈ [03:47] MULE-7: returning with 124kg salvage</span>
+  <span style="color:#e74c3c">◈ [05:22] FLATLINE-2: requesting emergency evac</span>
+</div>
+
+</div>
+</body>
+</html>
