@@ -8,13 +8,13 @@ interface Props {
   speed: number
   setPlaying: (v: boolean) => void
   cycleSpeed: () => void
+  leftOpen: boolean
+  rightOpen: boolean
+  onToggleLeft: () => void
+  onToggleRight: () => void
 }
 
-interface Props {
-  state: GameState
-}
-
-export function HeaderBar({ state, isPlaying, speed, setPlaying, cycleSpeed }: Props) {
+export function HeaderBar({ state, isPlaying, speed, setPlaying, cycleSpeed, leftOpen, rightOpen, onToggleLeft, onToggleRight }: Props) {
   const fuel = stackQty(state.baseStorage, 'fuel')
   const materials = stackQty(state.baseStorage, 'materials')
   const ammo = stackQty(state.baseStorage, 'ammo')
@@ -25,6 +25,25 @@ export function HeaderBar({ state, isPlaying, speed, setPlaying, cycleSpeed }: P
         <h1 className="header-brand__title">NINE LIVES CORP.</h1>
         <p className="header-brand__sub">OPERATIONAL COMMAND SYSTEM</p>
       </div>
+
+      {/* Toggle sidebar buttons */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={onToggleLeft}
+          className="text-muted hover:text-accent transition-colors cursor-pointer text-xs px-2 py-1 border border-border rounded"
+          title={leftOpen ? 'Hide left panel' : 'Show left panel'}
+        >
+          {leftOpen ? '◀ L' : 'L ▶'}
+        </button>
+        <button
+          onClick={onToggleRight}
+          className="text-muted hover:text-accent transition-colors cursor-pointer text-xs px-2 py-1 border border-border rounded"
+          title={rightOpen ? 'Hide right panel' : 'Show right panel'}
+        >
+          {rightOpen ? 'R ▶' : '◀ R'}
+        </button>
+      </div>
+
       <div className="resource-strip">
         <div className="resource-item">
           <div className="resource-item__label">Fuel</div>

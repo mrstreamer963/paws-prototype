@@ -1,3 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0b0f12;
+  --color-panel: #121820;
+  --color-panel-elevated: #161e28;
+  --color-border: #1e2a36;
+  --color-accent: #4ecdc4;
+  --color-warn: #f0a500;
+  --color-danger: #e74c3c;
+  --color-success: #2ecc71;
+  --color-text: #c8d4dc;
+  --color-muted: #6b7d8a;
+  --font-family-display: 'Rajdhani', system-ui, sans-serif;
+}
+
 :root {
   --bg: #0b0f12;
   --panel: #121820;
