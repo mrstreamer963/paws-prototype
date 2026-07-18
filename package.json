@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "dev": "npm --workspace=@paws/ui run dev",
-    "test": "npm -ws run test",
-    "build": "npm -ws run build"
+    "test": "npm --ws run test",
+    "build": "npm --ws run build"
   }
 }

@@ -10,9 +10,8 @@ Idle tactical prototype — **NINE LIVES CORP** operational command UI.
 ## Dev
 
 ```bash
-pnpm install
-# if pnpm warns about ignored builds: pnpm approve-builds esbuild
-pnpm dev
+npm install
+npm run dev
 ```
 
 Open http://localhost:5173 — KOBRA-1 runs missions automatically.
@@ -20,8 +19,7 @@ Open http://localhost:5173 — KOBRA-1 runs missions automatically.
 ## Test
 
 ```bash
-cd packages/core && pnpm exec vitest run
-cd packages/ui && pnpm exec vitest run
+npm test
 ```
 
 ## Docs
